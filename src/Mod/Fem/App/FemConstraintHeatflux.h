@@ -45,8 +45,6 @@ public:
     App::PropertyFloat Emissivity;
     App::PropertyHeatFlux DFlux;
     App::PropertyEnumeration ConstraintType;
-    App::PropertyBool CavityRadiation;
-    App::PropertyString CavityName;
 
     /// recalculate the object
     App::DocumentObjectExecReturn* execute() override;

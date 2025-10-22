@@ -93,8 +93,6 @@ class BezCurve(gui_lines.Line):
             if arg["Key"] == "ESCAPE":
                 self.finish()
             return
-        if not self.ui.mouse:
-            return
         if arg["Type"] == "SoLocation2Event":  # mouse movement detection
             self.point, ctrlPoint, info = gui_tool_utils.getPoint(self, arg, noTracker=True)
             # existing points + this pointer position
@@ -284,8 +282,6 @@ class CubicBezCurve(gui_lines.Line):
         if arg["Type"] == "SoKeyboardEvent":
             if arg["Key"] == "ESCAPE":
                 self.finish()
-            return
-        if not self.ui.mouse:
             return
         if arg["Type"] == "SoLocation2Event":  # mouse movement detection
             self.point, ctrlPoint, info = gui_tool_utils.getPoint(self, arg, noTracker=True)

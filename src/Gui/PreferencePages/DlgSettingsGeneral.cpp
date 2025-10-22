@@ -33,6 +33,7 @@
 # include <QMessageBox>
 # include <QString>
 # include <algorithm>
+# include <boost/filesystem.hpp>
 #endif
 
 #include <App/Document.h>
@@ -91,7 +92,7 @@ DlgSettingsGeneral::DlgSettingsGeneral( QWidget* parent )
     ui->themesCombobox->setEnabled(true);
     Gui::Document* doc = Gui::Application::Instance->activeDocument();
     if (doc) {
-        Gui::View3DInventor* view = qobject_cast<Gui::View3DInventor*>(doc->getActiveView());
+        Gui::View3DInventor* view = static_cast<Gui::View3DInventor*>(doc->getActiveView());
         if (view) {
             Gui::View3DInventorViewer* viewer = view->getViewer();
             if (viewer->isEditing()) {
@@ -639,7 +640,7 @@ void DlgSettingsGeneral::recreatePreferencePackMenu()
         button->setEnabled(true);
         Gui::Document* doc = Gui::Application::Instance->activeDocument();
         if (doc) {
-            Gui::View3DInventor* view = qobject_cast<Gui::View3DInventor*>(doc->getActiveView());
+            Gui::View3DInventor* view = static_cast<Gui::View3DInventor*>(doc->getActiveView());
             if (view) {
                 Gui::View3DInventorViewer* viewer = view->getViewer();
                 if (viewer->isEditing()) {

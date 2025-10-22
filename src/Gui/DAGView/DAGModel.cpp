@@ -563,7 +563,7 @@ void Model::updateSlot()
   int currentRow = 0;
   int currentColumn = -1; //we know first column is going to be root so will be kicked up to 0.
   int maxColumn = currentColumn; //used for determining offset of icons and text.
-  qreal maxTextLength = 0;
+  float maxTextLength = 0;
   for (const auto &currentVertex : sorted)
   {
     if (!(*theGraph)[currentVertex].dagVisible)
@@ -652,11 +652,11 @@ void Model::updateSlot()
 
     auto point = (*theGraph)[currentVertex].point.get();
     point->setRect(0.0, 0.0, pointSize, pointSize);
-    point->setTransform(QTransform::fromTranslate(pointSpacing * static_cast<qreal>(currentColumn),
+    point->setTransform(QTransform::fromTranslate(pointSpacing * currentColumn,
       rowHeight * currentRow + rowHeight / 2.0 - pointSize / 2.0));
     point->setBrush(currentBrush);
 
-    qreal cheat = 0.0;
+    float cheat = 0.0;
     if (direction == -1)
       cheat = rowHeight;
 
@@ -672,7 +672,7 @@ void Model::updateSlot()
     auto text = (*theGraph)[currentVertex].text.get();
     text->setPlainText(QString::fromUtf8(findRecord(currentVertex, *graphLink).DObject->Label.getValue()));
     text->setDefaultTextColor(currentBrush.color());
-    maxTextLength = std::max(maxTextLength, text->boundingRect().width());
+    maxTextLength = std::max(maxTextLength, static_cast<float>(text->boundingRect().width()));
     text->setTransform(QTransform::fromTranslate
       (0.0, rowHeight * currentRow - verticalSpacing * 2.0 + cheat)); //calculate x location later.
     (*theGraph)[currentVertex].lastVisibleState = VisibilityState::None; //force visual update for color.
@@ -683,8 +683,8 @@ void Model::updateSlot()
 
     //our list is topo sorted so all dependents should be located, so we can build the connectors.
     //will have some more logic for connector path, simple for now.
-    qreal currentX = pointSpacing * currentColumn + pointSize / 2.0;
-    qreal currentY = rowHeight * currentRow + rowHeight / 2.0;
+    float currentX = pointSpacing * currentColumn + pointSize / 2.0;
+    float currentY = rowHeight * currentRow + rowHeight / 2.0;
     OutEdgeIterator it, itEnd;
     boost::tie(it, itEnd) = boost::out_edges(currentVertex, *theGraph);
     for (; it != itEnd; ++it)
@@ -692,9 +692,9 @@ void Model::updateSlot()
       Vertex target = boost::target(*it, *theGraph);
       if (!(*theGraph)[target].dagVisible)
         continue; //we don't make it here if source isn't visible. So don't have to worry about that.
-      qreal dependentX = pointSpacing * static_cast<int>(columnFromMask((*theGraph)[target].column)) + pointSize / 2.0; //on center.
+      float dependentX = pointSpacing * static_cast<int>(columnFromMask((*theGraph)[target].column)) + pointSize / 2.0; //on center.
       columnFromMask((*theGraph)[target].column);
-      qreal dependentY = rowHeight * (*theGraph)[target].row + rowHeight / 2.0;
+      float dependentY = rowHeight * (*theGraph)[target].row + rowHeight / 2.0;
 
       QGraphicsPathItem *pathItem = (*theGraph)[*it].connector.get();
       pathItem->setBrush(Qt::NoBrush);
@@ -705,17 +705,17 @@ void Model::updateSlot()
       else
       {
         //connector with bend.
-        qreal radius = pointSpacing / 1.9; //no zero length line.
+        float radius = pointSpacing / 1.9; //no zero length line.
 
         path.lineTo(currentX, dependentY + radius * direction);
 
-        qreal yPosition;
+        float yPosition;
         if (direction == -1.0)
           yPosition = dependentY - 2.0 * radius;
         else
           yPosition = dependentY;
-        qreal width = 2.0 * radius;
-        qreal height = width;
+        float width = 2.0 * radius;
+        float height = width;
         if (dependentX > currentX) //radius to the right.
         {
           QRectF arcRect(currentX, yPosition, width, height);
@@ -735,10 +735,10 @@ void Model::updateSlot()
   }
 
   //now that we have the graph drawn we know where to place icons and text.
-  qreal columnSpacing = (maxColumn * pointSpacing);
+  float columnSpacing = (maxColumn * pointSpacing);
   for (const auto &currentVertex : sorted)
   {
-    qreal localCurrentX = columnSpacing;
+    float localCurrentX = columnSpacing;
     localCurrentX += pointToIcon;
     auto visiblePixmap = (*theGraph)[currentVertex].visibleIcon.get();
     QTransform visibleIconTransform = QTransform::fromTranslate(localCurrentX, 0.0);

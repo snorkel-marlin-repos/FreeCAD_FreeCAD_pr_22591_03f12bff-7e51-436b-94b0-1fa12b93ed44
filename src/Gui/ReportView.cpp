@@ -464,7 +464,7 @@ ReportOutput::~ReportOutput()
 
 void ReportOutput::restoreFont()
 {
-    QFont serifFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    QFont serifFont(QLatin1String("Courier"), 10, QFont::Normal);
     setFont(serifFont);
 }
 
@@ -854,8 +854,9 @@ void ReportOutput::OnChange(Base::Subject<const char*> &rCaller, const char * sR
     }
     else if (strcmp(sReason, "FontSize") == 0 || strcmp(sReason, "Font") == 0) {
         int fontSize = rclGrp.GetInt("FontSize", 10);
-        QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-        font.setPointSize(fontSize);
+        QString fontFamily = QString::fromLatin1(rclGrp.GetASCII("Font", "Courier").c_str());
+
+        QFont font(fontFamily, fontSize);
         setFont(font);
         QFontMetrics metric(font);
         int width = QtTools::horizontalAdvance(metric, QLatin1String("0000"));

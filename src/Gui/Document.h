@@ -58,12 +58,6 @@ class Application;
 class DocumentPy;
 class TransactionViewProvider;
 
-enum class CreateViewMode
-{
-    Normal,
-    Clone
-};
-
 /** The Gui Document
  *  This is the document on GUI level. Its main responsibility is keeping
  *  track off open windows for a document and warning on unsaved closes.
@@ -192,7 +186,9 @@ public:
     Gui::MDIView* getViewOfViewProvider(const Gui::ViewProvider*) const;
     Gui::MDIView* getViewOfNode(SoNode*) const;
     /// Create a new view
-    MDIView* createView(const Base::Type& typeId, CreateViewMode mode = CreateViewMode::Normal);
+    MDIView *createView(const Base::Type& typeId);
+    /// Create a clone of the given view
+    Gui::MDIView* cloneView(Gui::MDIView*);
     /** send messages to the active view
      * Send a specific massage to the active view and is able to receive a
      * return message

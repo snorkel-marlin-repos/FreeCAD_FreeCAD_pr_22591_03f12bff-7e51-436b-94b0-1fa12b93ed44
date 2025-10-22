@@ -668,6 +668,7 @@ FileChooser::FileChooser ( QWidget * parent )
     completer->setModel( fs_model );
     lineEdit->setCompleter( completer );
 
+    layout->addWidget( lineEdit );
 
     connect(lineEdit, &QLineEdit::textChanged, this, &FileChooser::fileNameChanged);
     connect(lineEdit, &QLineEdit::editingFinished, this, &FileChooser::editingFinished);
@@ -678,8 +679,7 @@ FileChooser::FileChooser ( QWidget * parent )
     button->setAttribute(Qt::WA_LayoutUsesWidgetRect); // layout size from QMacStyle was not correct
 #endif
 
-    layout->addWidget(lineEdit, 1);
-    layout->addWidget(button, -1);
+    layout->addWidget(button);
 
     connect(button, &QPushButton::clicked, this, &FileChooser::chooseFile);
 
@@ -690,6 +690,7 @@ FileChooser::~FileChooser() = default;
 
 void FileChooser::resizeEvent(QResizeEvent* e)
 {
+    button->setFixedWidth(e->size().height());
     button->setFixedHeight(e->size().height());
 }
 
@@ -814,12 +815,12 @@ void FileChooser::setFilter ( const QString& filter )
 /**
  * Sets the browse button's text to \a txt.
  */
-void FileChooser::setButtonText(const QString& txt)
+void FileChooser::setButtonText( const QString& txt )
 {
-    button->setText(txt);
+    button->setText( txt );
     int w1 = 2 * QtTools::horizontalAdvance(button->fontMetrics(), txt);
     int w2 = 2 * QtTools::horizontalAdvance(button->fontMetrics(), QLatin1String(" ... "));
-    button->setMinimumWidth(std::max(w1, w2));
+    button->setFixedWidth( (w1 > w2 ? w1 : w2) );
     Q_EMIT buttonTextChanged(txt);
 }
 

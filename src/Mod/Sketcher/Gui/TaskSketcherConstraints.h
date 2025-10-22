@@ -167,8 +167,7 @@ public:
 private:
     void slotConstraintsChanged();
     bool isConstraintFiltered(QListWidgetItem* item);
-    void change3DViewVisibilityToTrackFilter(bool filterEnabled);
-    bool doSetVirtualSpace(const std::vector<int>& constrIds, bool isvirtualspace);
+    void change3DViewVisibilityToTrackFilter();
     void changeFilteredVisibility(bool show, ActionTarget target = ActionTarget::All);
     void updateSelectionFilter();
     void updateAssociatedConstraintsFilter();

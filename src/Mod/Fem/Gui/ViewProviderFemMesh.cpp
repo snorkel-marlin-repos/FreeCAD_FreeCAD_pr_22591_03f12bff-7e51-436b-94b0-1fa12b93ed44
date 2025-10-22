@@ -1552,8 +1552,7 @@ void ViewProviderFEMMeshBuilder::createMesh(const App::Property* prop,
         double Yln = BndBox.LengthY() / NbrY;
         double Zln = BndBox.LengthZ() / NbrZ;
 
-        std::vector<FemFaceGridItem> Grid(static_cast<size_t>(NbrX) * static_cast<size_t>(NbrY)
-                                          * static_cast<size_t>(NbrZ));
+        std::vector<FemFaceGridItem> Grid(NbrX * NbrY * NbrZ);
 
 
         unsigned int iX = 0;

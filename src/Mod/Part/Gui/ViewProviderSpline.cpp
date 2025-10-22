@@ -289,8 +289,7 @@ void ViewProviderSplineExtension::showControlPointsOfFace(const TopoDS_Face& fac
         return; // nothing to do
 
     SoCoordinate3 * coords = new SoCoordinate3;
-    coords->point.setNum((static_cast<float>(nCtU) * static_cast<float>(nCtV)) +
-                         static_cast<float>(knots.size()));
+    coords->point.setNum(nCtU * nCtV + knots.size());
 
     int index=0;
     SbVec3f* verts = coords->point.startEditing();

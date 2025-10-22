@@ -33,7 +33,6 @@
 #include "PropertyContainer.h"
 #include "PropertyLinks.h"
 #include "PropertyStandard.h"
-#include "ExportInfo.h"
 
 #include <map>
 #include <vector>
@@ -247,8 +246,6 @@ public:
         Exporting,
     };
     ExportStatus isExporting(const DocumentObject* obj) const;
-    ExportInfo exportInfo() const;
-    void setExportInfo(const ExportInfo& info);
     void exportObjects(const std::vector<DocumentObject*>&, std::ostream&);
     void exportGraphviz(std::ostream&) const;
     std::vector<DocumentObject*> importObjects(Base::XMLReader& reader);

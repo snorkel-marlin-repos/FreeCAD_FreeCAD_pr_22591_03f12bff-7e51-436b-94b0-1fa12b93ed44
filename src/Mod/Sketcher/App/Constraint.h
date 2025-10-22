@@ -33,11 +33,6 @@
 #include "GeoEnum.h"
 
 
-// Flipping this to 0 removes old legazy members First, FirstPos, Second...
-// Will be used when everything has been migrated to new api.
-#define SKETCHER_CONSTRAINT_USE_LEGACY_ELEMENTS 1
-
-
 namespace Sketcher
 {
 /*!
@@ -134,18 +129,24 @@ public:
             || Type == Diameter || Type == Angle || Type == SnellsLaw || Type == Weight;
     }
 
-    /// utility function to swap the index in elements of the provided constraint from the
+    /// utility function to swap the index in First/Second/Third of the provided constraint from the
     /// fromGeoId GeoId to toGeoId
     void substituteIndex(int fromGeoId, int toGeoId);
-    /// utility function to swap the index and position in elements of the provided
+    /// utility function to swap the index and position in First/Second/Third of the provided
     /// constraint from {fromGeoId, fromPosId} to {toGeoId, toPosId}.
     void substituteIndexAndPos(int fromGeoId, PointPos fromPosId, int toGeoId, PointPos toPosId);
 
     /// utility function to check if `geoId` is one of the geometries
-    bool involvesGeoId(int geoId) const;
-
+    bool involvesGeoId(int geoId) const
+    {
+        return First == geoId || Second == geoId || Third == geoId;
+    }
     /// utility function to check if (`geoId`, `posId`) is one of the points/curves
-    bool involvesGeoIdAndPosId(int geoId, PointPos posId) const;
+    bool involvesGeoIdAndPosId(int geoId, PointPos posId) const
+    {
+        return (First == geoId && FirstPos == posId) || (Second == geoId && SecondPos == posId)
+            || (Third == geoId && ThirdPos == posId);
+    }
 
     std::string typeToString() const
     {
@@ -165,7 +166,7 @@ private:
     Constraint(const Constraint&) = default;  // only for internal use
 
 private:
-    double Value {0.0};
+    double Value;
 
     // clang-format off
     constexpr static std::array<const char*, ConstraintType::NumConstraintTypes> type2str {
@@ -206,38 +207,24 @@ private:
                                     "ParabolaFocalAxis"}};
 
 public:
-    ConstraintType Type {None};
-    InternalAlignmentType AlignmentType {Undef};
+    ConstraintType Type;
+    InternalAlignmentType AlignmentType;
     std::string Name;
-    float LabelDistance {10.F};
-    float LabelPosition {0.F};
-    bool isDriving {true};
+    int First;
+    PointPos FirstPos;
+    int Second;
+    PointPos SecondPos;
+    int Third;
+    PointPos ThirdPos;
+    float LabelDistance;
+    float LabelPosition;
+    bool isDriving;
     // Note: for InternalAlignment Type this index indexes equal internal geometry elements (e.g.
     // index of pole in a bspline). It is not a GeoId!!
-    int InternalAlignmentIndex {-1};
-    bool isInVirtualSpace {false};
+    int InternalAlignmentIndex;
+    bool isInVirtualSpace;
 
-    bool isActive {true};
-
-    GeoElementId getElement(size_t index) const;
-    void setElement(size_t index, GeoElementId element);
-    size_t getElementsSize() const;
-    void addElement(GeoElementId element);
-
-#ifdef SKETCHER_CONSTRAINT_USE_LEGACY_ELEMENTS
-    // Deprecated, use getElement/setElement instead
-    int First {GeoEnum::GeoUndef};
-    int Second {GeoEnum::GeoUndef};
-    int Third {GeoEnum::GeoUndef};
-    PointPos FirstPos {PointPos::none};
-    PointPos SecondPos {PointPos::none};
-    PointPos ThirdPos {PointPos::none};
-#endif
-
-private:
-    // New way to access point ids and positions.
-    // While the old way is still supported, it is recommended to the getters and setters instead.
-    std::vector<GeoElementId> elements {GeoElementId(), GeoElementId(), GeoElementId()};
+    bool isActive;
 
 protected:
     boost::uuids::uuid tag;

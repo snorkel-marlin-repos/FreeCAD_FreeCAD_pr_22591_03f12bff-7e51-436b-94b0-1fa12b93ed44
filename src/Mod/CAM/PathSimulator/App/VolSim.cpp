@@ -748,7 +748,7 @@ cSimTool::cSimTool(const TopoDS_Shape& toolShape, float res)
     for (int x = 0; x < radValue; x++) {
         // find the face of the tool by checking z points across the
         // radius to see if the point is inside the shape
-        pnt.x = static_cast<double>(x) * res;
+        pnt.x = x * res;
         bool inside = isInside(toolShape, pnt, res);
 
         // move down until the point is outside the shape

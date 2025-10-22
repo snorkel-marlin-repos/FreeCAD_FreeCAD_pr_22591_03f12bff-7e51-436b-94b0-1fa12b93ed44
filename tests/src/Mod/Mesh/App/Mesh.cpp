@@ -2,19 +2,8 @@
 #include <Mod/Mesh/App/Mesh.h>
 #include <Mod/Mesh/App/Core/Grid.h>
 
-#include <src/App/InitApplication.h>
-
-class MeshTest: public ::testing::Test
-{
-protected:
-    static void SetUpTestSuite()
-    {
-        tests::initApplication();
-    }
-};
-
 // NOLINTBEGIN(cppcoreguidelines-*,readability-*)
-TEST_F(MeshTest, TestDefault)
+TEST(MeshTest, TestDefault)
 {
     MeshCore::MeshKernel kernel;
     Base::Vector3f p1 {0, 0, 0};
@@ -27,7 +16,7 @@ TEST_F(MeshTest, TestDefault)
     EXPECT_EQ(kernel.CountFacets(), 1);
 }
 
-TEST_F(MeshTest, TestGrid1OfPlanarMesh)
+TEST(MeshTest, TestGrid1OfPlanarMesh)
 {
     MeshCore::MeshKernel kernel;
     Base::Vector3f p1 {0, 0, 0};
@@ -47,7 +36,7 @@ TEST_F(MeshTest, TestGrid1OfPlanarMesh)
     EXPECT_EQ(countZ, 1);
 }
 
-TEST_F(MeshTest, TestGrid2OfPlanarMesh)
+TEST(MeshTest, TestGrid2OfPlanarMesh)
 {
     MeshCore::MeshKernel kernel;
     Base::Vector3f p1 {0, 0, 0};
@@ -67,7 +56,7 @@ TEST_F(MeshTest, TestGrid2OfPlanarMesh)
     EXPECT_EQ(countZ, 1);
 }
 
-TEST_F(MeshTest, TestGrid1OfAlmostPlanarMesh)
+TEST(MeshTest, TestGrid1OfAlmostPlanarMesh)
 {
     MeshCore::MeshKernel kernel;
     Base::Vector3f p1 {0, 0, 0};
@@ -87,7 +76,7 @@ TEST_F(MeshTest, TestGrid1OfAlmostPlanarMesh)
     EXPECT_EQ(countZ, 1);
 }
 
-TEST_F(MeshTest, TestGrid2OfAlmostPlanarMesh)
+TEST(MeshTest, TestGrid2OfAlmostPlanarMesh)
 {
     MeshCore::MeshKernel kernel;
     Base::Vector3f p1 {0, 0, 0};

@@ -131,8 +131,8 @@ public:
 
     void setGrid();
 
-    QGSPage* getQGSPage() const;
-    QGVPage* getQGVPage() const;
+    QGSPage* getQGSPage() const { return m_graphicsScene; }
+    QGVPage* getQGVPage() const { return m_graphicsView; }
 
     ViewProviderPageExtension* getVPPExtension() const;
 
@@ -149,7 +149,7 @@ protected:
 private:
     QPointer<MDIViewPage> m_mdiView;
     std::string m_pageName;
-    QPointer<QGVPage> m_graphicsView;
+    QGVPage* m_graphicsView;
     QGSPage* m_graphicsScene;
 };
 

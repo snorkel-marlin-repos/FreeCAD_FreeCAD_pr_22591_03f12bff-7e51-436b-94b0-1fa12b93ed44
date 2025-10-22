@@ -400,6 +400,12 @@ void StdCmdExport::activated(int iMsg)
 {
     Q_UNUSED(iMsg);
 
+    static QString lastExportFullPath = QString();
+    static App::DocumentObject* lastExportedObject = nullptr;
+    static bool lastExportUsedGeneratedFilename = true;
+    static QString lastExportFilterUsed = QString();
+    static Document* lastActiveDocument;
+
     auto selection = Gui::Selection().getObjectsOfType(App::DocumentObject::getClassTypeId());
     if (selection.empty()) {
         QMessageBox::warning(Gui::getMainWindow(),
@@ -408,82 +414,77 @@ void StdCmdExport::activated(int iMsg)
         return;
     }
 
-    App::DocumentObject* toExport = selection.front();
-    App::Document* doc = toExport->getDocument();
-    App::ExportInfo exportInfo = doc->exportInfo();
-    bool filenameWasGenerated = false;
-
     // fill the list of registered suffixes
     QStringList filterList;
     std::map<std::string, std::string> filterMap = App::GetApplication().getExportFilters();
     for (const auto &filter : filterMap) {
         // ignore the project file format
-        if (filter.first.find("(*.FCStd)") == std::string::npos) {
+        if (filter.first.find("(*.FCStd)") == std::string::npos)
             filterList << QString::fromStdString(filter.first);
-        }
     }
     QString formatList = filterList.join(QLatin1String(";;"));
     Base::Reference<ParameterGrp> hPath =
         App::GetApplication().GetUserParameter().GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("General");
-    QString selectedFilter;
-
-    if (!exportInfo.filter.empty()) {
-        selectedFilter = QString::fromStdString(exportInfo.filter);
-    } else {
-        selectedFilter = QString::fromStdString(hPath->GetASCII("FileExportFilter"));
-    }
+    QString selectedFilter = QString::fromStdString(hPath->GetASCII("FileExportFilter"));
+    if (!lastExportFilterUsed.isEmpty())
+        selectedFilter = lastExportFilterUsed;
 
     // Create a default filename for the export
-    // * If this is the first export (the ExportInfo object' fields are empty)
-    // * If this is a repeated export using a filled ExportInfo object:
+    // * If this is the first export this session default, generate a new default.
+    // * If this is a repeated export during the same session and file:
     //     * If the user accepted the default filename last time, regenerate a new
     //       default, potentially updating the object label.
     //     * If not, default to their previously-set export filename.
     // * If this is an export of a different object than last time
-    QString defaultFilename;
-    if (exportInfo.filename.empty() || exportInfo.generatedName || exportInfo.object != toExport) {
+    QString defaultFilename = lastExportFullPath;
+
+    bool filenameWasGenerated = false;
+    bool didActiveDocumentChange = lastActiveDocument != getActiveGuiDocument();
+    bool didExportedObjectChange = lastExportedObject != selection.front();
+    // We want to generate a new default name in four cases:
+    if (defaultFilename.isEmpty() || lastExportUsedGeneratedFilename || didActiveDocumentChange || didExportedObjectChange) {
         // First, get the name and path of the current .FCStd file, if there is one:
-        QString docFilename = QString::fromStdString(doc->getFileName());
+        QString docFilename = QString::fromUtf8(
+            App::GetApplication().getActiveDocument()->getFileName());
 
         // Find the default location for our exported file. Three possibilities:
-        QString exportPath;
-        if (!exportInfo.filename.empty()) {
-            QFileInfo fi(QString::fromStdString(exportInfo.filename));
-            exportPath = fi.path();
+        QString defaultExportPath;
+        if (!lastExportFullPath.isEmpty()) {
+            QFileInfo fi(lastExportFullPath);
+            defaultExportPath = fi.path();
         }
         else if (!docFilename.isEmpty()) {
             QFileInfo fi(docFilename);
-            exportPath = fi.path();
+            defaultExportPath = fi.path();
         }
         else {
-            exportPath = Gui::FileDialog::getWorkingDirectory();
+            defaultExportPath = Gui::FileDialog::getWorkingDirectory();
         }
 
-        if (exportInfo.generatedName || exportInfo.object != toExport) {  /*<- static, true on first call*/
-            defaultFilename = exportPath + QLatin1Char('/') + createDefaultExportBasename();
+        if (lastExportUsedGeneratedFilename || didActiveDocumentChange || didExportedObjectChange) {  /*<- static, true on first call*/
+            defaultFilename = defaultExportPath + QLatin1Char('/') + createDefaultExportBasename();
 
             // Append the last extension used, if there is one.
-            if (!exportInfo.filename.empty()) {
-                QFileInfo lastExportFile(QString::fromStdString(exportInfo.filename));
+            if (!lastExportFullPath.isEmpty()) {
+                QFileInfo lastExportFile(lastExportFullPath);
                 if (!lastExportFile.suffix().isEmpty())
                     defaultFilename += QLatin1String(".") + lastExportFile.suffix();
             }
             filenameWasGenerated = true;
         }
-    } else {
-        defaultFilename = QString::fromStdString(exportInfo.filename);
     }
-        // Launch the file selection modal dialog
-    QString filename = FileDialog::getSaveFileName(getMainWindow(),
-        QObject::tr("Export file"), defaultFilename, formatList, &selectedFilter);
-    if (!filename.isEmpty()) {
-        hPath->SetASCII("FileExportFilter", selectedFilter.toLatin1().constData());
 
-        SelectModule::Dict dict = SelectModule::exportHandler(filename, selectedFilter);
+    // Launch the file selection modal dialog
+    QString fileName = FileDialog::getSaveFileName(getMainWindow(),
+        QObject::tr("Export file"), defaultFilename, formatList, &selectedFilter);
+    if (!fileName.isEmpty()) {
+        hPath->SetASCII("FileExportFilter", selectedFilter.toLatin1().constData());
+        lastExportFilterUsed = selectedFilter; // So we can select the same one next time
+        SelectModule::Dict dict = SelectModule::exportHandler(fileName, selectedFilter);
         // export the files with the associated modules
         for (SelectModule::Dict::iterator it = dict.begin(); it != dict.end(); ++it) {
             getGuiApplication()->exportTo(it.key().toUtf8(),
-                doc->getName(),
+                getActiveGuiDocument()->getDocument()->getName(),
                 it.value().toLatin1());
         }
 
@@ -491,18 +492,16 @@ void StdCmdExport::activated(int iMsg)
         // did, next time we can recreate it, which will update the object label if
         // there is one.
         QFileInfo defaultExportFI(defaultFilename);
-        QFileInfo thisExportFI(filename);
-        
-        if (filenameWasGenerated && thisExportFI.completeBaseName() != defaultExportFI.completeBaseName()) {
-            filenameWasGenerated = false;
-        }
+        QFileInfo thisExportFI(fileName);
+        if (filenameWasGenerated &&
+            thisExportFI.completeBaseName() == defaultExportFI.completeBaseName())
+            lastExportUsedGeneratedFilename = true;
+        else
+            lastExportUsedGeneratedFilename = false;
 
-        exportInfo.filename = filename.toStdString();
-        exportInfo.object = toExport;
-        exportInfo.filter = selectedFilter.toStdString();
-        exportInfo.generatedName = filenameWasGenerated;
-
-        doc->setExportInfo(exportInfo);
+        lastExportFullPath = fileName;
+        lastActiveDocument = getActiveGuiDocument();
+        lastExportedObject = selection.front();
     }
 }
 

@@ -11,9 +11,6 @@
 #include <Gui/Camera.h>
 #include <Gui/Utilities.h>
 
-#include <src/App/InitApplication.h>
-
-
 /*
  This comment was previously used to get the hard coded axonometric view quaternions
  in the Camera class.
@@ -137,16 +134,7 @@ std::array<double, 3> getProjectedLengths(const SbRotation& rot)
 
 }  // namespace
 
-class CameraPrecalculatedQuaternions: public ::testing::Test
-{
-protected:
-    static void SetUpTestSuite()
-    {
-        tests::initApplication();
-    }
-};
-
-TEST_F(CameraPrecalculatedQuaternions, testIsometric)
+TEST(CameraPrecalculatedQuaternions, testIsometric)
 {
     // Use the formula to get the isometric rotation
     double alpha = toRadians(45.0f);
@@ -158,7 +146,7 @@ TEST_F(CameraPrecalculatedQuaternions, testIsometric)
     EXPECT_TRUE(actual.isSame(expected, 1e-6));
 }
 
-TEST_F(CameraPrecalculatedQuaternions, testDimetric)
+TEST(CameraPrecalculatedQuaternions, testDimetric)
 {
     // Use the formula to get the dimetric rotation
     double alpha = std::asin(std::sqrt(1.0 / 8.0));
@@ -170,7 +158,7 @@ TEST_F(CameraPrecalculatedQuaternions, testDimetric)
     EXPECT_TRUE(actual.isSame(expected, 1e-6));
 }
 
-TEST_F(CameraPrecalculatedQuaternions, testTrimetric)
+TEST(CameraPrecalculatedQuaternions, testTrimetric)
 {
     // Use the formula to get the trimetric rotation
     double alpha = toRadians(30.0);
@@ -182,17 +170,7 @@ TEST_F(CameraPrecalculatedQuaternions, testTrimetric)
     EXPECT_TRUE(actual.isSame(expected, 1e-6));
 }
 
-
-class CameraRotation: public ::testing::Test
-{
-protected:
-    static void SetUpTestSuite()
-    {
-        tests::initApplication();
-    }
-};
-
-TEST_F(CameraRotation, testIsometricProjection)
+TEST(CameraRotation, testIsometricProjection)
 {
     auto rot = Gui::Camera::isometric();
     auto lengths = getProjectedLengths(rot);
@@ -203,7 +181,7 @@ TEST_F(CameraRotation, testIsometricProjection)
     EXPECT_NEAR(lengths[1], lengths[2], 1e-6);  // Y == Z
 }
 
-TEST_F(CameraRotation, testDimetricProjection)
+TEST(CameraRotation, testDimetricProjection)
 {
     const auto rot = Gui::Camera::dimetric();
     const auto lengths = getProjectedLengths(rot);
@@ -225,7 +203,7 @@ TEST_F(CameraRotation, testDimetricProjection)
     EXPECT_EQ(similarCount, 1);  // Exactly two are equal
 }
 
-TEST_F(CameraRotation, testTrimetricProjection)
+TEST(CameraRotation, testTrimetricProjection)
 {
     auto rot = Gui::Camera::trimetric();
     auto lengths = getProjectedLengths(rot);

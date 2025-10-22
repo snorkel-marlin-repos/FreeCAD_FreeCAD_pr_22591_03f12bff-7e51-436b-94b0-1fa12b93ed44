@@ -111,9 +111,6 @@ public:
     static PyObject* sGetUserEditMode          (PyObject *self,PyObject *args);
     static PyObject* sSetUserEditMode          (PyObject *self,PyObject *args);
 
-    static PyObject* sSuspendWaitCursor        (PyObject *self, PyObject *args);
-    static PyObject* sResumeWaitCursor         (PyObject *self, PyObject *args);
-
     static PyMethodDef    Methods[];
     // clang-format on
 };

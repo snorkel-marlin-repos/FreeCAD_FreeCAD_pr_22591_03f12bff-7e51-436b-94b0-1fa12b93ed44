@@ -32,15 +32,12 @@
 #ifdef _PreComp_
 
 // standard
-#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <iostream>
 #include <limits>
 #include <memory>
-#include <ranges>
 #include <sstream>
-#include <string>
 #include <vector>
 
 // Qt

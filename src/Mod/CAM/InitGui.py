@@ -108,10 +108,6 @@ class CAMWorkbench(Workbench):
         from Path.Tool.toolbit.ui import cmd as PathToolBitCmd
         from Path.Tool.library.ui import cmd as PathToolBitLibraryCmd
 
-        from Path.Tool.camassets import cam_assets
-
-        cam_assets.setup()
-
         from PySide.QtCore import QT_TRANSLATE_NOOP
 
         import PathCommands

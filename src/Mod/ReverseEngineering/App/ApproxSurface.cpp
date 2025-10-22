@@ -964,9 +964,7 @@ void BSplineParameterCorrection::DoParameterCorrection(int iIter)
     double fMaxDiff = 0.0, fMaxScalar = 1.0;
     double fWeight = _fSmoothInfluence;
 
-    Base::SequencerLauncher seq("Calc surface...",
-                                static_cast<size_t>(iIter)
-                                    * static_cast<size_t>(_pvcPoints->Length()));
+    Base::SequencerLauncher seq("Calc surface...", iIter * _pvcPoints->Length());
 
     do {
         fMaxScalar = 1.0;
@@ -1275,10 +1273,8 @@ void BSplineParameterCorrection::CalcSmoothingTerms(bool bRecalc,
 {
     if (bRecalc) {
         Base::SequencerLauncher seq("Initializing...",
-                                    static_cast<size_t>(3) * static_cast<size_t>(_usUCtrlpoints)
-                                        * static_cast<size_t>(_usUCtrlpoints)
-                                        * static_cast<size_t>(_usVCtrlpoints)
-                                        * static_cast<size_t>(_usVCtrlpoints));
+                                    3 * _usUCtrlpoints * _usUCtrlpoints * _usVCtrlpoints
+                                        * _usVCtrlpoints);
         CalcFirstSmoothMatrix(seq);
         CalcSecondSmoothMatrix(seq);
         CalcThirdSmoothMatrix(seq);
