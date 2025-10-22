@@ -1507,8 +1507,6 @@ def makeStairs(baseobj=None, length=None, width=None, height=None, steps=None, n
         if baseobj:
             for stair in stairs:
                 ArchStairs._ViewProviderStairs(stair.ViewObject)
-            for bo in baseobj:
-                bo.ViewObject.hide()
         else:
             ArchStairs._ViewProviderStairs(obj.ViewObject)
     if stairs:

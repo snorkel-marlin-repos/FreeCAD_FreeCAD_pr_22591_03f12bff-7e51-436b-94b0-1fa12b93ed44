@@ -166,30 +166,25 @@ TopoDS_Shape ShapeExtractor::getShapes(const std::vector<App::DocumentObject*> l
     for (auto& s:sourceShapes) {
         if (SU::isShapeReallyNull(s)) {
             continue;
-        }
-
-        if (s.ShapeType() < TopAbs_SOLID) {
-            //clean up TopAbs_COMPOUND & TopAbs_COMPSOLID
-            TopoDS_Shape cleanShape = ShapeFinder::stripInfiniteShapes(s);
+        } else if (s.ShapeType() < TopAbs_SOLID) {
+            //clean up composite shapes
+            TopoDS_Shape cleanShape = ShapeFinder::ShapeFinder::stripInfiniteShapes(s);
             if (!cleanShape.IsNull()) {
                 builder.Add(comp, cleanShape);
             }
         } else if (Part::TopoShape(s).isInfinite()) {
             continue;    //simple shape is infinite
+        } else {
+            //a simple shape - add to compound
+            builder.Add(comp, s);
         }
-
-        //a simple shape - add to compound
-        builder.Add(comp, s);
     }
-
     //it appears that an empty compound is !IsNull(), so we need to check a different way
-    if (SU::isShapeReallyNull(comp)) {
-        return {};
+    if (!SU::isShapeReallyNull(comp)) {
+        return comp;
     }
 
-    // BRepTools::Write(comp, "SEgetShapesOut.brep");
-
-    return comp;
+    return TopoDS_Shape();
 }
 
 std::vector<TopoDS_Shape> ShapeExtractor::getXShapes(const App::Link* xLink)

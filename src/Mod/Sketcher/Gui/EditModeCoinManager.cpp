@@ -185,6 +185,10 @@ void EditModeCoinManager::ParameterObserver::initParameters()
          [this, &drawingParameters = Client.drawingParameters](const std::string& param) {
              updatePattern(drawingParameters.ExternalDefiningPattern, param, 0b1111111111111111);
          }},
+        {"CreateLineColor",
+         [this, drawingParameters = Client.drawingParameters](const std::string& param) {
+             updateColor(drawingParameters.CreateCurveColor, param);
+         }},
         {"EditedEdgeColor",
          [this, drawingParameters = Client.drawingParameters](const std::string& param) {
              updateColor(drawingParameters.CurveColor, param);
@@ -605,8 +609,7 @@ void EditModeCoinManager::drawEditMarkers(const std::vector<Base::Vector2d>& Edi
     editModeScenegraphNodes.EditMarkerSet->markerIndex.finishEditing();
 }
 
-void EditModeCoinManager::drawEdit(const std::vector<Base::Vector2d>& EditCurve,
-                                   GeometryCreationMode mode)
+void EditModeCoinManager::drawEdit(const std::vector<Base::Vector2d>& EditCurve)
 {
     editModeScenegraphNodes.EditCurveSet->numVertices.setNum(1);
     editModeScenegraphNodes.EditCurvesCoordinate->point.setNum(EditCurve.size());
@@ -615,8 +618,6 @@ void EditModeCoinManager::drawEdit(const std::vector<Base::Vector2d>& EditCurve,
     int32_t* index = editModeScenegraphNodes.EditCurveSet->numVertices.startEditing();
     SbColor* color = editModeScenegraphNodes.EditCurvesMaterials->diffuseColor.startEditing();
 
-    setEditDrawStyle(mode);
-
     int i = 0;  // setting up the line set
     for (std::vector<Base::Vector2d>::const_iterator it = EditCurve.begin(); it != EditCurve.end();
          ++it, i++) {
@@ -624,14 +625,7 @@ void EditModeCoinManager::drawEdit(const std::vector<Base::Vector2d>& EditCurve,
                           it->y,
                           ViewProviderSketchCoinAttorney::getViewOrientationFactor(viewProvider)
                               * drawingParameters.zEdit);
-        switch (mode) {
-            case GeometryCreationMode::Normal:
-                color[i] = drawingParameters.CurveColor;
-                break;
-            case GeometryCreationMode::Construction:
-                color[i] = drawingParameters.CurveDraftColor;
-                break;
-        }
+        color[i] = drawingParameters.CreateCurveColor;
     }
 
     index[0] = EditCurve.size();
@@ -640,8 +634,7 @@ void EditModeCoinManager::drawEdit(const std::vector<Base::Vector2d>& EditCurve,
     editModeScenegraphNodes.EditCurvesMaterials->diffuseColor.finishEditing();
 }
 
-void EditModeCoinManager::drawEdit(const std::list<std::vector<Base::Vector2d>>& list,
-                                   GeometryCreationMode mode)
+void EditModeCoinManager::drawEdit(const std::list<std::vector<Base::Vector2d>>& list)
 {
     int ncoords = 0;
 
@@ -656,8 +649,6 @@ void EditModeCoinManager::drawEdit(const std::list<std::vector<Base::Vector2d>>&
     int32_t* index = editModeScenegraphNodes.EditCurveSet->numVertices.startEditing();
     SbColor* color = editModeScenegraphNodes.EditCurvesMaterials->diffuseColor.startEditing();
 
-    setEditDrawStyle(mode);
-
     int coordindex = 0;
     int indexindex = 0;
     for (const auto& v : list) {
@@ -667,16 +658,7 @@ void EditModeCoinManager::drawEdit(const std::list<std::vector<Base::Vector2d>>&
                 p.y,
                 ViewProviderSketchCoinAttorney::getViewOrientationFactor(viewProvider)
                     * drawingParameters.zEdit);
-
-            switch (mode) {
-                case GeometryCreationMode::Normal:
-                    color[coordindex] = drawingParameters.CurveColor;
-                    break;
-                case GeometryCreationMode::Construction:
-                    color[coordindex] = drawingParameters.CurveDraftColor;
-                    break;
-            }
-
+            color[coordindex] = drawingParameters.CreateCurveColor;
             coordindex++;
         }
         index[indexindex] = v.size();
@@ -978,9 +960,8 @@ void EditModeCoinManager::createEditModeInventorNodes()
 
     editModeScenegraphNodes.EditCurvesDrawStyle = new SoDrawStyle;
     editModeScenegraphNodes.EditCurvesDrawStyle->setName("EditCurvesDrawStyle");
-    editModeScenegraphNodes.EditCurvesDrawStyle->lineWidth = 3
-        * drawingParameters
-              .pixelScalingFactor;  // This default value will be overriden in drawEdit()
+    editModeScenegraphNodes.EditCurvesDrawStyle->lineWidth =
+        3 * drawingParameters.pixelScalingFactor;
     editCurvesRoot->addChild(editModeScenegraphNodes.EditCurvesDrawStyle);
 
     editModeScenegraphNodes.EditCurveSet = new SoLineSet;
@@ -1064,24 +1045,6 @@ void EditModeCoinManager::createEditModeInventorNodes()
 void EditModeCoinManager::redrawViewProvider()
 {
     viewProvider.draw(false, false);
-}
-void EditModeCoinManager::setEditDrawStyle(GeometryCreationMode mode)
-{
-    SoDrawStyle* toCopy = nullptr;
-
-    switch (mode) {
-        case GeometryCreationMode::Normal:
-            toCopy = editModeScenegraphNodes.CurvesDrawStyle;
-            break;
-        case GeometryCreationMode::Construction:
-            toCopy = editModeScenegraphNodes.CurvesConstructionDrawStyle;
-            break;
-    }
-
-    editModeScenegraphNodes.EditCurvesDrawStyle->lineWidth = toCopy->lineWidth;
-    editModeScenegraphNodes.EditCurvesDrawStyle->linePattern = toCopy->linePattern;
-    editModeScenegraphNodes.EditCurvesDrawStyle->linePatternScaleFactor =
-        toCopy->linePatternScaleFactor;
 }
 
 /************************ Delegated constraint public interface **********/

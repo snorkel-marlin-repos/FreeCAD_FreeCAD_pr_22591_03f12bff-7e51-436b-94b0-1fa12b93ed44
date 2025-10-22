@@ -154,10 +154,8 @@ public:
     std::vector<App::DocumentObject*> getGroundedJoints();
     std::vector<App::DocumentObject*> getJointsOfObj(App::DocumentObject* obj);
     std::vector<App::DocumentObject*> getJointsOfPart(App::DocumentObject* part);
-    App::DocumentObject*
-    getJointOfPartConnectingToGround(App::DocumentObject* part,
-                                     std::string& name,
-                                     const std::vector<App::DocumentObject*>& excludeJoints = {});
+    App::DocumentObject* getJointOfPartConnectingToGround(App::DocumentObject* part,
+                                                          std::string& name);
     std::unordered_set<App::DocumentObject*> getGroundedParts();
     std::unordered_set<App::DocumentObject*> fixGroundedParts();
     void fixGroundedPart(App::DocumentObject* obj, Base::Placement& plc, std::string& jointName);
@@ -178,11 +176,10 @@ public:
 
     std::vector<ObjRef> getDownstreamParts(App::DocumentObject* part,
                                            App::DocumentObject* joint = nullptr);
-    App::DocumentObject*
-    getUpstreamMovingPart(App::DocumentObject* part,
-                          App::DocumentObject*& joint,
-                          std::string& name,
-                          std::vector<App::DocumentObject*> excludeJoints = {});
+    std::vector<App::DocumentObject*> getUpstreamParts(App::DocumentObject* part, int limit = 0);
+    App::DocumentObject* getUpstreamMovingPart(App::DocumentObject* part,
+                                               App::DocumentObject*& joint,
+                                               std::string& name);
 
     double getObjMass(App::DocumentObject* obj);
     void setObjMasses(std::vector<std::pair<App::DocumentObject*, double>> objectMasses);
@@ -190,8 +187,6 @@ public:
     std::vector<AssemblyLink*> getSubAssemblies();
 
     std::vector<App::DocumentObject*> getMotionsFromSimulation(App::DocumentObject* sim);
-
-    bool isMbDJointValid(App::DocumentObject* joint);
 
 private:
     std::shared_ptr<MbD::ASMTAssembly> mbdAssembly;

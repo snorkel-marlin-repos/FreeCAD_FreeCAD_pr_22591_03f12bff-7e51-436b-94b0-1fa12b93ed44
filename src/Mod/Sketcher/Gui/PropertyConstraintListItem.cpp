@@ -109,7 +109,6 @@ void PropertyConstraintListItem::initialize()
 
             item->bind(list->createPath(id - 1));
             item->setAutoApply(false);
-            item->setReadOnly(!(*it)->isDriving);
         }
     }
 

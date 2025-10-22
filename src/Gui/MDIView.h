@@ -70,8 +70,6 @@ public:
      */
     ~MDIView() override;
 
-    virtual MDIView* clone();
-
     /// get called when the document is updated
     void onRelabel(Gui::Document *pDoc) override;
     virtual void viewAll();
@@ -179,13 +177,9 @@ protected Q_SLOTS:
     virtual void windowStateChanged(QWidget*);
 
 protected:
-    void closeEvent(QCloseEvent* e) override;
+    void closeEvent(QCloseEvent *e) override;
     /** \internal */
-    void changeEvent(QEvent* e) override;
-
-    bool eventFilter(QObject* watched, QEvent* e) override;
-
-    void cloneFrom(const MDIView& from);
+    void changeEvent(QEvent *e) override;
 
 protected:
     PyObject* pythonObject;

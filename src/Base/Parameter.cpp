@@ -2094,7 +2094,6 @@ void ParameterManager::CheckDocument() const
         parser.setValidationScheme(XercesDOMParser::Val_Auto);
         parser.setDoNamespaces(true);
         parser.setDoSchema(true);
-        parser.setDisableDefaultEntityResolution(true);
 
         DOMTreeErrorReporter errHandler;
         parser.setErrorHandler(&errHandler);

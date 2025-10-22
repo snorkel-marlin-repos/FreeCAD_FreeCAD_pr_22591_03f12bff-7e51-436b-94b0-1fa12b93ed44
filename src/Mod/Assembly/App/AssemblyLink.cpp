@@ -207,7 +207,6 @@ void AssemblyLink::synchronizeComponents()
 
             auto* subAsmLink = freecad_cast<AssemblyLink*>(obj2);
             auto* link2 = dynamic_cast<App::Link*>(obj2);
-
             if (subAsmLink) {
                 linkedObj = subAsmLink->getLinkedObject2(false);  // not recursive
             }
@@ -215,7 +214,7 @@ void AssemblyLink::synchronizeComponents()
                 linkedObj = link2->getLinkedObject(false);  // not recursive
             }
             else {
-                // We consider only Links and AssemblyLinks
+                // We consider only Links and AssemblyLinks in the AssemblyLink.
                 continue;
             }
 
@@ -229,10 +228,8 @@ void AssemblyLink::synchronizeComponents()
             // Add a link or a AssemblyLink to it in the AssemblyLink.
             if (obj->isDerivedFrom<AssemblyLink>()) {
                 auto* asmLink = static_cast<AssemblyLink*>(obj);
-
-                App::DocumentObject* newObj =
-                    doc->addObject("Assembly::AssemblyLink", obj->getNameInDocument());
-                auto* subAsmLink = static_cast<AssemblyLink*>(newObj);
+                auto* subAsmLink = new AssemblyLink();
+                doc->addObject(subAsmLink, obj->getNameInDocument());
                 subAsmLink->LinkedObject.setValue(obj);
                 subAsmLink->Rigid.setValue(asmLink->Rigid.getValue());
                 subAsmLink->Label.setValue(obj->Label.getValue());
@@ -352,7 +349,7 @@ void AssemblyLink::synchronizeJoints()
         }
 
         // Then we have to check the properties one by one.
-        copyPropertyIfDifferent<App::PropertyBool>(joint, lJoint, "Suppressed");
+        copyPropertyIfDifferent<App::PropertyBool>(joint, lJoint, "Activated");
         copyPropertyIfDifferent<App::PropertyFloat>(joint, lJoint, "Distance");
         copyPropertyIfDifferent<App::PropertyFloat>(joint, lJoint, "Distance2");
         copyPropertyIfDifferent<App::PropertyEnumeration>(joint, lJoint, "JointType");

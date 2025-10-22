@@ -5241,15 +5241,15 @@ bool TopoShape::isLinearEdge(Base::Vector3d* dir, Base::Vector3d* base) const
         return false;
     }
 
-    auto tdsEdge = TopoDS::Edge(getShape());
-    if (tdsEdge.IsNull()) {
+    if (!GeomCurve::isLinear(BRepAdaptor_Curve(TopoDS::Edge(getShape())).Curve().Curve(),
+                             dir,
+                             base)) {
         return false;
     }
 
     // BRep_Tool::Curve() will transform the returned geometry, so no need to
     // check the shape's placement.
-    auto curve = BRepAdaptor_Curve(tdsEdge).Curve().Curve();
-    return curve && GeomCurve::isLinear(curve);
+    return true;
 }
 
 bool TopoShape::isPlanarFace(double tol) const

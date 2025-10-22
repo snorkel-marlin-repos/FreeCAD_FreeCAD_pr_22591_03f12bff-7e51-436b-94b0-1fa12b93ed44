@@ -29,7 +29,6 @@ SET(MeasureGui_UIC_SRCS
 )
 
 generate_from_xml(QuickMeasurePy)
-generate_from_py_(QuickMeasurePy)
 
 SET(MeasureGui_SRCS
     ${CMAKE_SOURCE_DIR}/src/Mod/Measure/InitGui.py

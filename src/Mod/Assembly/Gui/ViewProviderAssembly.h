@@ -51,13 +51,13 @@ struct MovingObject
     Base::Placement plc;
     App::PropertyXLinkSub* ref;
     App::DocumentObject* rootObj;  // object of the selection object
-    const std::string sub;         // sub name given by the selection.
+    std::string sub;               // sub name given by the selection.
 
     // Constructor
     MovingObject(App::DocumentObject* o,
                  const Base::Placement& p,
                  App::DocumentObject* ro,
-                 const std::string& s)
+                 std::string& s)
         : obj(o)
         , plc(p)
         , ref(nullptr)
@@ -106,8 +106,6 @@ public:
     void setupContextMenu(QMenu* menu, QObject* receiver, const char* member) override;
     bool onDelete(const std::vector<std::string>& subNames) override;
     bool canDelete(App::DocumentObject* obj) const override;
-
-    void updateData(const App::Property*) override;
 
     /** @name enter/exit edit mode */
     //@{
@@ -232,11 +230,6 @@ public:
 private:
     bool tryMouseMove(const SbVec2s& cursorPos, Gui::View3DInventorViewer* viewer);
     void tryInitMove(const SbVec2s& cursorPos, Gui::View3DInventorViewer* viewer);
-
-    void collectMovableObjects(App::DocumentObject* selRoot,
-                               const std::string& subNamePrefix,
-                               App::DocumentObject* currentObject,
-                               bool onlySolids);
 };
 
 }  // namespace AssemblyGui

@@ -281,8 +281,7 @@ TextEditor::TextEditor(QWidget* parent)
     d = new TextEditorP();
     lineNumberArea = new LineMarker(this);
 
-    QFont serifFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-    serifFont.setPointSize(10);
+    QFont serifFont(QLatin1String("Courier"), 10, QFont::Normal);
     setFont(serifFont);
 
     ParameterGrp::handle hPrefGrp = getWindowParameter();
@@ -448,8 +447,9 @@ void TextEditor::OnChange(Base::Subject<const char*> &rCaller,const char* sReaso
 #else
         int fontSize = hPrefGrp->GetInt("FontSize", 10);
 #endif
-        QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-        font.setPointSize(fontSize);
+        QString fontFamily = QString::fromLatin1(hPrefGrp->GetASCII( "Font", "Courier" ).c_str());
+
+        QFont font(fontFamily, fontSize);
         setFont(font);
         lineNumberArea->setFont(font);
     }
